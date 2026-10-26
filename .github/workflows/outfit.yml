@@ -1,0 +1,11 @@
+name: outfit
+on:
+  schedule: [{cron: "0 22 * * *"}]  # 07:00 KST
+  workflow_dispatch:
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python outfit.py
+        env: {DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"}
