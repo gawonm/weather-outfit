@@ -8,4 +8,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python outfit.py
-        env: {DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"}
+        env: {DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}", KMA_KEY: "${{ secrets.KMA_KEY }}"}
