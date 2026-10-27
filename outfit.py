@@ -1,4 +1,4 @@
-import datetime as dt, json, os, sys, urllib.parse as up, urllib.request
+import datetime as dt, json, os, sys, time, urllib.parse as up, urllib.request
 
 PLACES = {"성북구": (37.5894, 127.0167, 61, 127), "강남구": (37.5172, 127.0473, 61, 126)}  # 위경도, 기상청 격자(nx, ny)
 OFFSET = 0  # 케바케 보정: 추위 많이 타면 +2~3, 더위 많이 타면 -2~3 (체감온도에 더해 구간 판정)
@@ -55,6 +55,9 @@ if __name__ == "__main__":
     data = {n: fetch(*c) for n, c in PLACES.items()}
     msg = "\n\n".join(line(n, d) for n, d in data.items()) + "\n\n" + links(next(iter(data.values())))
     hook = os.environ.get("DISCORD_WEBHOOK")
+    if os.environ.get("GITHUB_EVENT_NAME") == "schedule":  # cron이 일찍 돌면 07:00 KST까지 대기 (늦으면 바로 전송)
+        now = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=9)
+        time.sleep(max(0, min(1800, (now.replace(hour=7, minute=0, second=0) - now).total_seconds())))
     if not hook: print(msg)
     else:
         req = urllib.request.Request(hook, json.dumps({"content": "☀️ 오늘의 날씨·옷차림\n\n" + msg}).encode(),

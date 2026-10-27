@@ -1,6 +1,6 @@
 name: outfit
 on:
-  schedule: [{cron: "0 22 * * *"}]  # 07:00 KST
+  schedule: [{cron: "40 21 * * *"}]  # 06:40 KST, GitHub 지연 감안해 일찍 시작 → 스크립트가 07:00까지 대기
   workflow_dispatch:
 jobs:
   send:
