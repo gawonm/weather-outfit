@@ -13,7 +13,7 @@ def outfit(t):
 
 def kma(nx, ny):
     today = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=9)).strftime("%Y%m%d")
-    q = up.urlencode({"serviceKey": up.unquote(os.environ["KMA_KEY"]), "pageNo": 1, "numOfRows": 1500, "dataType": "JSON",
+    q = up.urlencode({"serviceKey": up.unquote(os.environ["KMA_KEY"].strip()), "pageNo": 1, "numOfRows": 1500, "dataType": "JSON",
                       "base_date": today, "base_time": "0200", "nx": nx, "ny": ny})
     r = json.load(urllib.request.urlopen(urllib.request.Request("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?" + q, headers={"User-Agent": "Mozilla/5.0"})))
     items = r["response"]["body"]["items"]["item"]
@@ -30,7 +30,8 @@ def kma(nx, ny):
 def fetch(lat, lon, nx, ny):
     if os.environ.get("KMA_KEY"):
         try: return kma(nx, ny)
-        except Exception as e: print("기상청 실패, Open-Meteo로 대체:", repr(e)[:300], getattr(e, "read", lambda: b"")()[:300], file=sys.stderr)
+        except Exception as e: k = os.environ["KMA_KEY"]; print(f"KMA_KEY len={len(k)} ws={k != k.strip()} pct={'%' in k}", file=sys.stderr)
+        print("기상청 실패, Open-Meteo로 대체:", repr(e)[:300], getattr(e, "read", lambda: b"")()[:300], file=sys.stderr)
     url = ("https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&timezone=Asia%%2FSeoul&forecast_days=1"
            "&daily=temperature_2m_min,temperature_2m_max,apparent_temperature_min,apparent_temperature_max,precipitation_probability_max")
     return {**json.load(urllib.request.urlopen(url % (lat, lon)))["daily"], "src": "Open-Meteo"}
