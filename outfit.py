@@ -30,8 +30,9 @@ def kma(nx, ny):
 def fetch(lat, lon, nx, ny):
     if os.environ.get("KMA_KEY"):
         try: return kma(nx, ny)
-        except Exception as e: k = os.environ["KMA_KEY"]; print(f"KMA_KEY len={len(k)} ws={k != k.strip()} pct={'%' in k}", file=sys.stderr)
-        print("기상청 실패, Open-Meteo로 대체:", repr(e)[:300], getattr(e, "read", lambda: b"")()[:300], file=sys.stderr)
+        except Exception as e:
+            k = os.environ["KMA_KEY"]
+            print(f"기상청 실패, Open-Meteo로 대체: {e!r:.300} {getattr(e, 'read', lambda: b'')()[:300]} (KMA_KEY len={len(k)})", file=sys.stderr)
     url = ("https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&timezone=Asia%%2FSeoul&forecast_days=1"
            "&daily=temperature_2m_min,temperature_2m_max,apparent_temperature_min,apparent_temperature_max,precipitation_probability_max")
     return {**json.load(urllib.request.urlopen(url % (lat, lon)))["daily"], "src": "Open-Meteo"}
